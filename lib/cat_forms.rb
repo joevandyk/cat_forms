@@ -8,6 +8,7 @@ module CatForms
   require 'active_model'
   require 'virtus'
   require 'active_support/core_ext/class/attribute'
+  autoload :GzipCookie, 'cat_forms/gzip_cookie'
 
   module Form
 
@@ -41,6 +42,10 @@ module CatForms
         end
 
         def name.plural
+          self
+        end
+
+        def name.param_key
           self
         end
 
@@ -118,17 +123,42 @@ module CatForms
       def initialize options = {}
         _run_initialize_callbacks do
           options[:form] ||= {}
-          options[:form].each do |name, value|
-            self.send "#{name}=", value.strip
+
+          # TODO fix
+          # This allows setting of custom things
+          options.each do |key, value|
+            self.class.send :attr_accessor, key
+            instance_variable_set "@#{key}", value
           end
+
+          CatForms::GzipCookie.new(storage_options).load(storage_options).each do |key, value|
+            self.send "#{key}=", value
+          end
+
+          options[:form].each do |name, value|
+            value.strip! if value.respond_to?(:strip)
+            self.send "#{name}=", value
+          end
+
         end
         super
       end
 
       def save_to_storage!
-        raise 'not finished yet'
-        @options[:attributes] = attributes
-        self.class.form_storage.save(@options)
+        options = storage_options.merge(:attributes => attributes)
+        CatForms::GzipCookie.new(options).save(options)
+      end
+
+      def storage_options
+        {
+          :httponly => true,
+          :secure => true,
+          :domain => 'dev.tanga.com', # TODO make configurable
+          :path => '/',
+          :name => 'cart', # TODO make configurable
+          :request => @request,
+          :response => @response
+        }
       end
     end
   end
