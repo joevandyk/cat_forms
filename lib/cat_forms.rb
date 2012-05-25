@@ -128,6 +128,9 @@ module CatForms
           # This allows setting of custom things
           options.each do |key, value|
             instance_variable_set "@#{key}", value
+            class_eval do
+              attr_accessor key
+            end
           end
 
           CatForms::GzipCookie.load(storage_options).each do |key, value|
