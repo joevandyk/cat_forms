@@ -10,7 +10,12 @@ module CatForms
   require 'active_support/core_ext/class/attribute'
   autoload :GzipCookie, 'cat_forms/gzip_cookie'
 
-  class CatForms::Boolean < Virtus::Attribute::Boolean
+  # TODO not sure thy this is necessary. tests run, but
+  # when this is included by rails, i get already defined
+  # errors and super class mismatch errors.
+  if !defined?(CatForms::Boolean)
+    class Boolean < Virtus::Attribute::Boolean
+    end
   end
 
   module Form
