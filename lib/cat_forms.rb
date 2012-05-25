@@ -10,7 +10,8 @@ module CatForms
   require 'active_support/core_ext/class/attribute'
   autoload :GzipCookie, 'cat_forms/gzip_cookie'
 
-  Boolean = Virtus::Attribute::Boolean
+  class CatForms::Boolean < Virtus::Attribute::Boolean
+  end
 
   module Form
 
@@ -69,7 +70,7 @@ module CatForms
         options[:default] ||=
           if klass.kind_of?(Array)
             []
-          elsif klass == Virtus::Attribute::Boolean
+          elsif klass == CatForms::Boolean
             false
           elsif klass.respond_to?(:new)
             klass.new
