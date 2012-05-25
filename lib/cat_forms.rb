@@ -10,6 +10,8 @@ module CatForms
   require 'active_support/core_ext/class/attribute'
   autoload :GzipCookie, 'cat_forms/gzip_cookie'
 
+  Boolean = Virtus::Attribute::Boolean
+
   module Form
 
     def self.included base
@@ -67,12 +69,20 @@ module CatForms
         options[:default] ||=
           if klass.kind_of?(Array)
             []
+          elsif klass == Virtus::Attribute::Boolean
+            false
           elsif klass.respond_to?(:new)
             klass.new
           else
             ""
           end
         attribute name, klass, options
+      end
+
+      def custom_attribute attribute_name
+        class_eval do
+          attr_reader attribute_name
+        end
       end
 
       def validates_associated(*associations)
@@ -128,9 +138,6 @@ module CatForms
           # This allows setting of custom things
           options.each do |key, value|
             instance_variable_set "@#{key}", value
-            class_eval do
-              attr_accessor key
-            end
           end
 
           CatForms::GzipCookie.load(storage_options).each do |key, value|

@@ -20,6 +20,7 @@ class BasicForm
 
   form_attribute :email, String
   form_attribute :age, Integer
+  form_attribute :receive_email, CatForms::Boolean
   validates :email, :presence => true
 end
 
@@ -28,7 +29,12 @@ class BasicFormWithAssociations < BasicForm
   form_attribute :shipping_address, Address
   form_attribute :billing_address, Address
   form_attribute :age, Integer, :default => 18
+  custom_attribute :ip_address
   validates_associated :shipping_address
+
+  def localhost?
+    self.ip_address == '127.0.0.1'
+  end
 end
 
 class BasicFormSaving < BasicForm
@@ -48,6 +54,29 @@ class TestNewCatForms < MiniTest::Unit::TestCase
 
     f.email = "joe@tanga.com"
     assert f.valid?
+  end
+
+  def test_boolean
+    truthy_values = ["1", "true", 1]
+    falsey_values = ["0", 0, "false"]
+
+    truthy_values.each do |value|
+      f = BasicForm.new(:form => { :receive_email => value })
+      assert_equal true, f.receive_email?
+    end
+
+    falsey_values.each do |value|
+      f = BasicForm.new(:form => { :receive_email => value })
+      assert_equal false, f.receive_email?
+    end
+  end
+
+  def test_custom_values
+    f = BasicFormWithAssociations.new(:ip_address => '127.0.0.1')
+    assert_equal true, f.localhost?
+
+    f = BasicFormWithAssociations.new(:ip_address => '192.0.0.1')
+    assert_equal false, f.localhost?
   end
 
   # In general, you want form inputs to have the extra whitespace
