@@ -66,11 +66,6 @@ class TestNewCatForms < MiniTest::Unit::TestCase
   end
 
   def test_conversion
-    f = BasicForm.new(:age => '3')
-    assert_equal 3, f.age
-  end
-
-  def test_init_with_form_hash
     f = BasicForm.new(:form => { :age => '3' })
     assert_equal 3, f.age
   end
@@ -82,14 +77,16 @@ class TestNewCatForms < MiniTest::Unit::TestCase
   end
 
   def test_children
-    f = BasicFormWithAssociations.new(
-      :age => '3',
-      :line_items => [{:product_id => "1", :quantity => "2"}],
-      :shipping_address => { :name => 'Joe', :city => "Seattle"}
-    )
-    assert_equal 2, f.line_items.first.quantity
-    assert_equal 1, f.line_items.first.product_id
+    f = BasicFormWithAssociations.new(:form => {
+        :age => '3',
+        :line_items => [{:product_id => "1", :quantity => "2"}, {:product_id => "2", :quantity => "3"}],
+        :shipping_address => { :name => 'Joe', :city => "Seattle"}})
+    assert_equal 2, f.line_items[0].quantity
+    assert_equal 1, f.line_items[0].product_id
+    assert_equal 3, f.line_items[1].quantity
+    assert_equal 2, f.line_items[1].product_id
     assert_equal "Seattle", f.shipping_address.city
+    assert_equal "Joe", f.shipping_address.name
   end
 
   def test_children_validations

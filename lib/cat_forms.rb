@@ -127,12 +127,14 @@ module CatForms
           # TODO fix
           # This allows setting of custom things
           options.each do |key, value|
-            self.class.send :attr_accessor, key
             instance_variable_set "@#{key}", value
           end
 
-          CatForms::GzipCookie.new(storage_options).load(storage_options).each do |key, value|
-            self.send "#{key}=", value
+          CatForms::GzipCookie.load(storage_options).each do |key, value|
+            method = "#{key}="
+            if respond_to?(method)
+              self.send method, value
+            end
           end
 
           options[:form].each do |name, value|
@@ -146,18 +148,14 @@ module CatForms
 
       def save_to_storage!
         options = storage_options.merge(:attributes => attributes)
-        CatForms::GzipCookie.new(options).save(options)
+        CatForms::GzipCookie.save(options)
       end
 
       def storage_options
         {
-          :httponly => true,
-          :secure => true,
-          :domain => 'dev.tanga.com', # TODO make configurable
-          :path => '/',
-          :name => 'cart', # TODO make configurable
-          :request => @request,
-          :response => @response
+          :cookie_name => @cookie_name,
+          :request     => @request,
+          :response    => @response
         }
       end
     end
