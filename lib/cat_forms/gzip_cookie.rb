@@ -30,7 +30,7 @@ module CatForms::GzipCookie
     cookie_hash = { :value    => cookie_json,
                     :httponly => true,
                     :secure   => true,
-                    :domain   => request.domain,
+                    :domain   => request.host,
                     :path     => '/' }
     response.set_cookie(cookie_name, cookie_hash)
   end
