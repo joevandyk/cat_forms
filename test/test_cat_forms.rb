@@ -29,6 +29,7 @@ class BasicFormWithAssociations < BasicForm
   form_attribute :shipping_address, Address
   form_attribute :billing_address, Address
   form_attribute :age, Integer, :default => 18
+  form_attribute :amount, BigDecimal
   custom_attribute :ip_address
   validates_associated :shipping_address
 
@@ -77,6 +78,11 @@ class TestNewCatForms < MiniTest::Unit::TestCase
 
     f = BasicFormWithAssociations.new(:ip_address => '192.0.0.1')
     assert_equal false, f.localhost?
+  end
+
+  def test_big_decimal
+    f = BasicFormWithAssociations.new(:amount => '1.99')
+    assert_equal BigDecimal.new('1.99'), f.amount
   end
 
   # In general, you want form inputs to have the extra whitespace

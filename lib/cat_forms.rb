@@ -75,8 +75,8 @@ module CatForms
         options[:default] ||=
           if klass.kind_of?(Array)
             []
-          elsif klass == CatForms::Boolean
-            false
+          elsif klass == BigDecimal or klass == Boolean or klass == CatForms::Boolean
+            ""
           elsif klass.respond_to?(:new)
             klass.new
           else
