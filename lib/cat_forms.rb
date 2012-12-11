@@ -83,6 +83,16 @@ module CatForms
             ""
           end
         attribute name, klass, options
+
+        # Define an association_attributes= method
+        # Rails's fields_for looks for this.
+        if klass.kind_of?(Array)
+          define_method "#{name}_attributes=" do |hash|
+            hash.each do |index, options|
+              self.send(name) << klass.first.new(options)
+            end
+          end
+        end
       end
 
       def custom_attribute attribute_name

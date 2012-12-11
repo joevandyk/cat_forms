@@ -124,6 +124,17 @@ class TestNewCatForms < MiniTest::Unit::TestCase
     assert_equal "Joe", f.shipping_address.name
   end
 
+  def test_children_with_attributes
+    # Rails-style fields_for
+    f = BasicFormWithAssociations.new(:form => {
+        :line_items_attributes => { "0" => {:product_id => "1", :quantity => "2"}, "2" => {:product_id => "2", :quantity => "3"} }
+    })
+    assert_equal 2, f.line_items[0].quantity
+    assert_equal 1, f.line_items[0].product_id
+    assert_equal 3, f.line_items[1].quantity
+    assert_equal 2, f.line_items[1].product_id
+  end
+
   def test_children_validations
     f = BasicFormWithAssociations.new(:email => 'joe@tanga.com')
     refute f.valid?
