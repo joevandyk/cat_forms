@@ -147,7 +147,7 @@ module CatForms
       end
 
       def initialize options = {}
-        _run_initialize_callbacks do
+        run_callbacks :initialize do
           options[:form] ||= {}
 
           # TODO fix
